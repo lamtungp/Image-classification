@@ -56,18 +56,15 @@ class Dataset:
             myarray = np.asarray(self.imageList)
 
             self.train_set[i] = anotherList[0:]
-            # self.test_set[i] = anotherList[:15]
             print('len of train set', len(self.train_set[i]))
             i = i+1
-            # mydict[''train' + str(class_name)'] = 'someval'
-            # "{0}_train_set".format(class_name),"{0}_test_set".format(class_name),b_train, b_test = train_test_split(self.imageList, self.classes, test_size=0.33, random_state=42)
+
         test = glob.glob(self.path + "/test/*")
         j = 0
         for image in test:
             imgList = image.replace("\\", "/")
             self.test_set[j] = [imgList]
             j += 1
-        print("test =====", self.test_set)
 
         myarray = np.asarray(self.imageList)
         self.classes = np.asarray(self.classes)

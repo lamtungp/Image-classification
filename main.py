@@ -40,17 +40,14 @@ def main(k=10, knn_kernel=cv2.ml.KNearest_create()):
     knn, cluster_model = classifier.train(
         knn_kernel, k, des_name)
     print("Training ready. Now beginning with testing")
-    result, labels, mask = classifier.test(
+    result, labels, img_set = classifier.test(
         knn, cluster_model, k)
-    print('test result')
     # Store the results from the test
     classes = dataset.get_classes()
     log.classes(classes)
     log.classes_counts(dataset.get_classes_counts())
     result_filename = filenames.result(k, des_name, knn_kernel)
     test_count = len(dataset.get_test_set()[0])
-    # for j in range(len(labels)):
-    #     print(j)
     result_label = []
 
     for i in result:
@@ -75,9 +72,15 @@ def main(k=10, knn_kernel=cv2.ml.KNearest_create()):
         if (i == 9.):
             result_label.append('hoagiay')
 
+    img_names = []
+
+    for i in img_set:
+        img_names.append([img_set[i][0].split("/")[2], result_label[i]])
+
+    print('test result')
     print(result_label)
-    result_matrix = np.reshape(result_label, (test_count, len(classes)))
-    utils.save_csv(result_filename, result_matrix)
+    # result_matrix = np.reshape(result_label, (test_count, len(classes)))
+    utils.save_csv(result_filename, img_names)
 
     # Create a confusion matrix
     confusion_matrix = np.zeros((len(classes), len(classes)), dtype=np.uint32)
@@ -86,7 +89,6 @@ def main(k=10, knn_kernel=cv2.ml.KNearest_create()):
         real_id = int(labels[i])
         confusion_matrix[real_id][predicted_id] += 1
 
-    print("Confusion Matrix =\n{0}".format(confusion_matrix))
     log.confusion_matrix(confusion_matrix)
     log.save()
     print("Log saved on {0}.".format(filenames.log(k, des_name, knn_kernel)))

@@ -28,7 +28,7 @@ class Classifier:
         x_filename = filenames.vlads_train(k, des_name)
         print("Getting global descriptors for the training set.")
         start = time.time()
-        x, y, cluster_model = self.get_data_and_labels(
+        x, y, cluster_model, img_set = self.get_data_and_labels(
             self.dataset.get_train_set(), None, k, des_name, isTrain)
         utils.save(x_filename, x)
         print("cluster_model", cluster_model)
@@ -46,7 +46,7 @@ class Classifier:
         des_name = constants.SIFT_FEAT_NAME
         print("Getting global descriptors for the testing set...")
         start = time.time()
-        x, y, cluster_model = self.get_data_and_labels(
+        x, y, cluster_model, img_set = self.get_data_and_labels(
             self.dataset.get_test_set(), cluster_model, k, des_name, isTrain)
         end = time.time()
         start = time.time()
@@ -57,7 +57,7 @@ class Classifier:
         correct = np.count_nonzero(mask)
         accuracy = (correct * 100.0 / result.size)
         self.log.accuracy(accuracy)
-        return result, y, mask
+        return result, y, img_set
 
     def get_data_and_labels(self, img_set, cluster_model, k, des_name, isTrain):
         y = []
@@ -81,4 +81,4 @@ class Classifier:
         print('X', X.shape, X)
         y = np.float32(y)[:, np.newaxis]
         x = np.matrix(X)
-        return x, y, cluster_model
+        return x, y, cluster_model, img_set
