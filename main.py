@@ -6,15 +6,13 @@ import os
 # Local dependencies
 from classifier import Classifier
 from dataset import Dataset
-import descriptors
 import constants
 import utils
 import filenames
 from log import Log
 
-def main(is_interactive=True, k=10, des_option=constants.ORB_FEAT_OPTION, knn_kernel=cv2.ml.KNearest_create()):
-    if not is_interactive:
-        experiment_start = time.time()
+
+def main(k=10, knn_kernel=cv2.ml.KNearest_create()):
     # Check for the dataset of images
     if not os.path.exists(constants.DATASET_PATH):
         print("Dataset not found, please copy one.")
@@ -24,9 +22,6 @@ def main(is_interactive=True, k=10, des_option=constants.ORB_FEAT_OPTION, knn_ke
     # Check for the directory where stores generated files
     if not os.path.exists(constants.FILES_DIR_NAME):
         os.makedirs(constants.FILES_DIR_NAME)
-
-    if is_interactive:
-        knn_kernel = cv2.ml.KNearest_create()
 
     des_name = constants.SIFT_FEAT_NAME
     log = Log(k, des_name, knn_kernel)
@@ -43,10 +38,10 @@ def main(is_interactive=True, k=10, des_option=constants.ORB_FEAT_OPTION, knn_ke
     # Train and test the dataset
     classifier = Classifier(dataset, log)
     knn, cluster_model = classifier.train(
-        knn_kernel, k, des_name, des_option=des_option, is_interactive=is_interactive)
+        knn_kernel, k, des_name)
     print("Training ready. Now beginning with testing")
     result, labels, mask = classifier.test(
-        knn, cluster_model, k, des_option=des_option, is_interactive=is_interactive)
+        knn, cluster_model, k)
     print('test result')
     # Store the results from the test
     classes = dataset.get_classes()
@@ -57,7 +52,7 @@ def main(is_interactive=True, k=10, des_option=constants.ORB_FEAT_OPTION, knn_ke
     # for j in range(len(labels)):
     #     print(j)
     result_label = []
-    
+
     for i in result:
         if (i == 0.):
             result_label.append('caybang')
@@ -68,16 +63,18 @@ def main(is_interactive=True, k=10, des_option=constants.ORB_FEAT_OPTION, knn_ke
         if (i == 3.):
             result_label.append('caydao')
         if (i == 4.):
-            result_label.append('caydinhlang')
+            result_label.append('dinhlang')
         if (i == 5.):
             result_label.append('caymai')
         if (i == 6.):
             result_label.append('cayphong')
         if (i == 7.):
-            result_label.append('cayphuong')    
+            result_label.append('cayquat')
         if (i == 8.):
-            result_label.append('hoagiay')   
-             
+            result_label.append('cayphuong')
+        if (i == 9.):
+            result_label.append('hoagiay')
+
     print(result_label)
     result_matrix = np.reshape(result_label, (test_count, len(classes)))
     utils.save_csv(result_filename, result_matrix)
@@ -93,15 +90,10 @@ def main(is_interactive=True, k=10, des_option=constants.ORB_FEAT_OPTION, knn_ke
     log.confusion_matrix(confusion_matrix)
     log.save()
     print("Log saved on {0}.".format(filenames.log(k, des_name, knn_kernel)))
-    if not is_interactive:
-        experiment_end = time.time()
-        elapsed_time = utils.humanize_time(experiment_end - experiment_start)
-        print("Total time during the experiment was {0}".format(elapsed_time))
-    else:
-        # Show a plot of the confusion matrix on interactive mode
-        print(result_filename)
-        # utils.show_conf_mat(confusion_matrix)
-        #raw_input("Press [Enter] to exit ...")
+    # Show a plot of the confusion matrix on interactive mode
+    print(result_filename)
+    # utils.show_conf_mat(confusion_matrix)
+    #raw_input("Press [Enter] to exit ...")
 
 
 if __name__ == '__main__':
